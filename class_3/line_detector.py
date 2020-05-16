@@ -30,8 +30,9 @@ def display_lines(image, lines):
     return image
 
 # load file
-# os.chdir('./line_detection')
-image = cv2.imread('test_image.jpg')
+path = os.path.dirname(os.path.abspath(__file__))
+filename = path + '/test_image.jpg'
+image = cv2.imread(filename)
 
 if  image is None:
     print('Error: image cannot be read. Quit!')
