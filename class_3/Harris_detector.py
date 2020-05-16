@@ -9,14 +9,22 @@ import numpy as np
 import os
 
 # Load the example image
-path = os.path.dirname(os.path.abspath(__file__))
-filename = path + '/test_image.jpg'
-image = cv2.imread(filename, 0)
+#path = os.path.dirname(os.path.abspath(__file__))
+#filename = path + '/test_image.jpg'
+filename = 'chessboard.jpg'
+image = cv2.imread(filename)
+if  image is None:
+    print('Error: image cannot be read. Quit!')
+    exit()
+
 grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 grayImage = grayImage.astype(np.float32)
 
 # Apply Harris corner detection
 cornerImage = cv2.cornerHarris(grayImage,2,3,0.04)
+
+# Display result
+cornerImage = cv2.dilate(cornerImage,None)
 image[cornerImage>0.01*cornerImage.max()] = [0,0,255]
 cv2.imshow('Harris corner', image)
 cv2.waitKey(0)

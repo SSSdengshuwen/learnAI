@@ -12,6 +12,10 @@ import os
 path = os.path.dirname(os.path.abspath(__file__))
 filename = path + '/lincoln.tif'
 image = cv2.imread(filename, 0)
+if  image is None:
+    print('Error: image cannot be read. Quit!')
+    exit()
+
 cv2.imshow('Original', image)
 image = image.astype(np.float32)
 
