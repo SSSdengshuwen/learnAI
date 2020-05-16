@@ -11,7 +11,7 @@ import os
 # Load the example image
 path = os.path.dirname(os.path.abspath(__file__))
 filename = path + '/lincoln.tif'
-image = cv2.imread(filename)
+image = cv2.imread(filename, 0)
 cv2.imshow('Original', image)
 
 # Image smoothing using convolution
@@ -22,15 +22,19 @@ cv2.imshow('Smooth', smoothImage)
 # Apply Sobel filter\
 f_x = np.array([[1, 0, -1],[2,0,-2], [1, 0, -1]])
 GxImage = cv2.filter2D(image, -1, f_x)
-outImage = cv2.normalize(GxImage, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+outImage = cv2.normalize(GxImage, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
 cv2.imshow('Gx', outImage)
 
 f_y = np.array([[1, 2, 1],[0,0,0], [-1, -2, -1]])
 GyImage = cv2.filter2D(image, -1, f_y)
-outImage = cv2.normalize(GyImage, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+outImage = cv2.normalize(GyImage, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
 cv2.imshow('Gy', outImage)
 
-GImage = np.sqrt(np.square(GxImage) + np.square(GyImage))
-outImage = cv2.normalize(GImage, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+# Apply unidirecitional Sobel filter
+GxImage = cv2.filter2D(smoothImage, -1, f_x)
+GyImage = cv2.filter2D(smoothImage, -1, f_y)
+GImage = np.sqrt(GxImage**2 + GyImage**2)
+GImage = GImage.astype(np.float32)
+outImage = cv2.normalize(GImage, None, 0, 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8UC1)
 cv2.imshow('G', outImage)
 cv2.waitKey(0)
