@@ -1,3 +1,9 @@
+## This is course material for Introduction to Modern Artificial Intelligence
+## Class 3 Example code: line_detection.py
+## Author: Allen Y. Yang,  Intelligent Racing Inc.
+##
+## (c) Copyright 2020. Intelligent Racing Inc. Not permitted for commercial use
+
 import cv2
 import numpy as np
 import os
