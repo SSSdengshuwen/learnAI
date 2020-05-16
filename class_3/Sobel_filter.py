@@ -20,11 +20,17 @@ smoothImage = cv2.filter2D(image, -1, smoothFilter)
 cv2.imshow('Smooth', smoothImage)
 
 # Apply Sobel filter\
-Gx = np.array([[1, 0, -1],[2,0,-2], [1, 0, -1]])
-GxImage = cv2.filter2D(image, -1, Gx)
-cv2.imshow('Gx', GxImage)
+f_x = np.array([[1, 0, -1],[2,0,-2], [1, 0, -1]])
+GxImage = cv2.filter2D(image, -1, f_x)
+outImage = cv2.normalize(GxImage, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+cv2.imshow('Gx', outImage)
 
-Gy = np.array([[1, 2, 1],[0,0,0], [-1, -2, -1]])
-GyImage = cv2.filter2D(image, -1, Gy)
-cv2.imshow('Gy', GyImage)
+f_y = np.array([[1, 2, 1],[0,0,0], [-1, -2, -1]])
+GyImage = cv2.filter2D(image, -1, f_y)
+outImage = cv2.normalize(GyImage, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+cv2.imshow('Gy', outImage)
+
+GImage = np.sqrt(np.square(GxImage) + np.square(GyImage))
+outImage = cv2.normalize(GImage, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+cv2.imshow('G', outImage)
 cv2.waitKey(0)
