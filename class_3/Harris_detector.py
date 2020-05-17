@@ -17,7 +17,7 @@ if  image is None:
     exit()
 
 grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-grayImage = grayImage.astype(np.float32)
+# grayImage = grayImage.astype(np.float32)
 
 # Apply Harris corner detection
 cornerImage = cv2.cornerHarris(grayImage, blockSize=2, ksize=3, k=0.04)
