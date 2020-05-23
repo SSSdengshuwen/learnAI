@@ -10,14 +10,28 @@ import os
 
 def extract_edge(image):
     # detect line features by taking derivatives in (x,y) plane
-    edge_image = cv2.Canny(image, 50, 150)
-    return edge_image
+    image = image.astype(np.float32)
+    f_x = np.array([[1, 0, -1],[2,0,-2], [1, 0, -1]])
+    f_y = np.array([[1, 2, 1],[0,0,0], [-1, -2, -1]])
+
+    smoothFilter = np.ones((5,5))/25.0
+    smoothImage = cv2.filter2D(image, -1, smoothFilter)
+    Ix = cv2.filter2D(smoothImage, -1, f_x)
+    Iy = cv2.filter2D(smoothImage, -1, f_y)
+    GImage = np.sqrt(Ix**2 + Iy**2)
+    GImage = GImage.astype(np.float32)
+    outImage = cv2.normalize(GImage, None, 0, 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8UC1)
+    _,filteredImage = cv2.threshold(outImage, 127, 255, cv2.THRESH_BINARY)
+    kernel = np.ones((5,5), np.uint8)
+    dilatedImage = cv2.dilate(filteredImage, kernel, iterations = 3)
+    erodedImage = cv2.erode(dilatedImage, kernel, iterations = 4)
+    return erodedImage
 
 def region_of_interest(image):
-    height = image.shape[0]
-    triangle = np.array([(200, height), (1100, height), (550, 250)])
+    height,width = image.shape
+    ROI = np.array([(0, height), (width, height), (width, 300), (0, 300)])
     mask = np.zeros_like(image)
-    cv2.fillPoly(mask, [triangle], 255)
+    cv2.fillPoly(mask, [ROI], 255)
     return mask
 
 def display_lines(image, lines):
@@ -47,6 +61,7 @@ cv2.waitKey(0)
 
 # Create a mask to identify Region of Interest
 mask_image = region_of_interest(edge_image)
+cv2.imshow('Mask', mask_image)
 masked_edge_image = cv2.bitwise_and(edge_image,mask_image)
 cv2.imshow('Masked Image', masked_edge_image)
 cv2.waitKey(0)
