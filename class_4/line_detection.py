@@ -29,7 +29,7 @@ def extract_edge(image):
 
 def region_of_interest(image):
     height,width = image.shape
-    ROI = np.array([(0, height), (width, height), (width, 300), (0, 300)])
+    ROI = np.array([(0, height), (width, height), (width, height-400), (0, height-400)])
     mask = np.zeros_like(image)
     cv2.fillPoly(mask, [ROI], 255)
     return mask
