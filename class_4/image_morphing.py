@@ -33,7 +33,7 @@ outImage = cv2.normalize(GImage, None, 0, 255, norm_type = cv2.NORM_MINMAX, dtyp
 cv2.imshow('Sobel Edge', outImage)
 
 # Filter only the strong edges
-_,filteredImage = cv2.threshold(outImage, 127, 255, cv2.THRESH_BINARY)
+_,filteredImage = cv2.threshold(outImage, 127, 255, cv2.THRESH_BINARY)#上一个语句行的元素，可以除2来做中值，低于者为0，255可以设为1但是打印不便//
 cv2.imshow('binary Image', filteredImage)
 
 # Dilate and Erode
