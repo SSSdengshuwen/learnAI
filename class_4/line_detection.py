@@ -66,7 +66,8 @@ masked_edge_image = cv2.bitwise_and(edge_image,mask_image)
 cv2.imshow('Masked Image', masked_edge_image)
 cv2.waitKey(0)
 
-lines = cv2.HoughLinesP(masked_edge_image, 2, np.pi/180, 100, np.array([]), minLineLength = 40, maxLineGap = 5)
+lines = cv2.HoughLinesP(masked_edge_image, 1, np.pi/180, 100, \
+    minLineLength = 40, maxLineGap = 5)
 lines_image = display_lines(image, lines)
 cv2.imshow('Lines', lines_image)
 cv2.waitKey(0)
