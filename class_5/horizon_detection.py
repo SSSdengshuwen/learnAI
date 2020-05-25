@@ -21,53 +21,47 @@ def extract_edge(image):
     GImage = np.sqrt(Ix**2 + Iy**2)
     GImage = GImage.astype(np.float32)
     outImage = cv2.normalize(GImage, None, 0, 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8UC1)
-    _,filteredImage = cv2.threshold(outImage, 127, 255, cv2.THRESH_BINARY)
-    kernel = np.ones((5,5), np.uint8)
-    dilatedImage = cv2.dilate(filteredImage, kernel, iterations = 3)
+    _,filteredImage = cv2.threshold(outImage, 64, 255, cv2.THRESH_BINARY)
+    kernel = np.ones((3,3), np.uint8)
+    dilatedImage = cv2.dilate(filteredImage, kernel, iterations = 4)
     erodedImage = cv2.erode(dilatedImage, kernel, iterations = 4)
     return erodedImage
-
-def region_of_interest(image):
-    height,width = image.shape
-    ROI = np.array([(0, height), (width, height), (width, height-400), (0, height-400)])
-    mask = np.zeros_like(image)
-    cv2.fillPoly(mask, [ROI], 255)
-    return mask
 
 def display_lines(image, lines):
     if lines is not None:
         for line in lines:
             # print(line)
             x1, y1, x2, y2 = line.reshape(4)
-            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 10)
+            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
     return image
 
 # load file
 path = os.path.dirname(os.path.abspath(__file__))
-filename = path + '/test_image.jpg'
-image = cv2.imread(filename)
+filename = path + '/highway_video.mp4'
 
-if  image is None:
-    print('Error: image cannot be read. Quit!')
-    exit()
+grabber = cv2.VideoCapture(filename)
 
-# Create gray image and denoise
-gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+while(grabber.isOpened()):
+    ret, frame = grabber.read()
 
-edge_image = extract_edge(gray_image)
-cv2.imshow('Edge Image', edge_image)
-cv2.waitKey(0)
+    if ret == False:
+        break
 
-# Create a mask to identify Region of Interest
-mask_image = region_of_interest(edge_image)
-cv2.imshow('Mask', mask_image)
-masked_edge_image = cv2.bitwise_and(edge_image,mask_image)
-cv2.imshow('Masked Image', masked_edge_image)
-cv2.waitKey(0)
+    # Create gray image and denoise
+    gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-lines = cv2.HoughLinesP(masked_edge_image, 1, np.pi/180, 100, \
-    minLineLength = 40, maxLineGap = 5)
-lines_image = display_lines(image, lines)
-cv2.imshow('Lines', lines_image)
-cv2.waitKey(0)
+    edge_image = extract_edge(gray_image)
+    cv2.imshow('Edge Image', edge_image)
+
+    height, width = edge_image.shape
+    lines = cv2.HoughLinesP(edge_image, 1, np.pi/180, 100, \
+        minLineLength = width/10, maxLineGap = width/10)
+    lines_image = display_lines(frame, lines)
+    cv2.imshow('Lines', lines_image)
+    key = cv2.waitKey(1)
+    if key & 0xFF == ord('q'):
+        break
+
+grabber.release()
+cv2.destroyAllWindows()
