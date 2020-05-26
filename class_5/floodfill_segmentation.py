@@ -26,7 +26,7 @@ while(grabber.isOpened()):
 
     seed = (width//2, height-100)
     # Flood the frame to segment only the road
-    cv2.floodFill(frame, None, seedPoint = seed, newVal = (255, 0, 0), loDiff=(5,5,5), upDiff = (5,5,5))
+    cv2.floodFill(frame, None, seedPoint = seed, newVal = (255, 0, 0), loDiff=(3,3,3), upDiff = (3,3,3))
     
     # Augment the illustration of the seed point
     cv2.circle(frame, seed, 2, (0, 0, 255), cv2.FILLED, cv2.LINE_AA)
