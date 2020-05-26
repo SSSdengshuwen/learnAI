@@ -1,5 +1,5 @@
 ## This is course material for Introduction to Modern Artificial Intelligence
-## Class 5 Example code: horizon_detection.py
+## Class 5 Example code: canny_detector.py
 ## Author: Allen Y. Yang,  Intelligent Racing Inc.
 ##
 ## (c) Copyright 2020. Intelligent Racing Inc. Not permitted for commercial use

@@ -19,7 +19,7 @@ grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 _, threshImage = cv2.threshold(grayImage, 20, 255, cv2.THRESH_BINARY)
 cv2.imshow('Threshold', threshImage)
 
-#Process 2: Using adaptive thresholding
+# Process 2: Using adaptive thresholding
 adaptiveImage = cv2.adaptiveThreshold(grayImage, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 1)
 cv2.imshow('Adaptive',adaptiveImage)
 cv2.waitKey(0)
