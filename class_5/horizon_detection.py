@@ -8,24 +8,19 @@ import cv2
 import numpy as np
 import os
 
-def extract_edge(image):
+def closing(image, dilateIter=1, erodeIter=1):
     # detect line features by taking derivatives in (x,y) plane
-    image = image.astype(np.float32)
-    f_x = np.array([[1, 0, -1],[2,0,-2], [1, 0, -1]])
-    f_y = np.array([[1, 2, 1],[0,0,0], [-1, -2, -1]])
-
-    smoothFilter = np.ones((5,5))/25.0
-    smoothImage = cv2.filter2D(image, -1, smoothFilter)
-    Ix = cv2.filter2D(smoothImage, -1, f_x)
-    Iy = cv2.filter2D(smoothImage, -1, f_y)
-    GImage = np.sqrt(Ix**2 + Iy**2)
-    GImage = GImage.astype(np.float32)
-    outImage = cv2.normalize(GImage, None, 0, 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8UC1)
-    _,filteredImage = cv2.threshold(outImage, 64, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3,3), np.uint8)
-    dilatedImage = cv2.dilate(filteredImage, kernel, iterations = 4)
-    erodedImage = cv2.erode(dilatedImage, kernel, iterations = 4)
+    dilatedImage = cv2.dilate(image, kernel, iterations = dilateIter)
+    erodedImage = cv2.erode(dilatedImage, kernel, iterations = erodeIter)
     return erodedImage
+
+def region_of_interest(image):
+    height,width = image.shape
+    ROI = np.array([(0, height-100), (width, height-100), (width-300, height-300), (300, height-300)])
+    mask = np.zeros_like(image)
+    cv2.fillPoly(mask, [ROI], 255)
+    return mask
 
 def display_lines(image, lines):
     if lines is not None:
@@ -41,7 +36,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 filename = path + '/highway_video.mp4'
 
 grabber = cv2.VideoCapture(filename)
-
+mask_image = None
 while(grabber.isOpened()):
     ret, frame = grabber.read()
 
@@ -50,13 +45,18 @@ while(grabber.isOpened()):
 
     # Create gray image and denoise
     gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    if mask_image is None:
+        mask_image = region_of_interest(gray_image)
 
-    edge_image = extract_edge(gray_image)
-    cv2.imshow('Edge Image', edge_image)
+    #edge_image = extract_edge(gray_image)
+    edge_image = cv2.Canny(gray_image, 100, 200)
+    ROI_image = cv2.bitwise_and(edge_image,mask_image)
+    ROI_image = closing(ROI_image, 3,4)
+    cv2.imshow('Edge Image', ROI_image)
 
-    height, width = edge_image.shape
-    lines = cv2.HoughLinesP(edge_image, 1, np.pi/180, 100, \
-        minLineLength = width/10, maxLineGap = width/10)
+    height, width = ROI_image.shape
+    lines = cv2.HoughLinesP(ROI_image, 1, np.pi/180, 100, \
+        minLineLength = width/10, maxLineGap = width/5)
     lines_image = display_lines(frame, lines)
     cv2.imshow('Lines', lines_image)
     key = cv2.waitKey(1)
