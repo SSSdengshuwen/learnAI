@@ -35,7 +35,7 @@ while(grabber.isOpened()):
 
     cv2.imshow('Road', frame)
     key = cv2.waitKey(1)
-    if key & 0xFF == ord('q'):
+    if key == ord('q'):
         break
 
 grabber.release()
