@@ -56,7 +56,7 @@ while (grabber.isOpened()):
         seed = (x + w//2, y + h//2)
         mask = np.zeros((height+2, width+2), dtype = np.uint8)
         fillValue = 255
-        cv2.floodFill(frame, mask, seedPoint = seed, newVal = (255, 0, 0), loDiff=(100,10,5), upDiff = (100,10,5), flags = cv2.FLOODFILL_MASK_ONLY| (fillValue << 8))
+        cv2.floodFill(frame, mask, seedPoint = seed, newVal = 255, loDiff=(100,10,5), upDiff = (100,10,5), flags = 8 | cv2.FLOODFILL_MASK_ONLY| (fillValue << 8))
         _, mask = cv2.threshold(mask, 10, 255, cv2.THRESH_BINARY)
         cv2.imshow('Mask', mask)
         #_, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
