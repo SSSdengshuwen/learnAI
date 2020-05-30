@@ -1,5 +1,5 @@
 ## This is course material for Introduction to Modern Artificial Intelligence
-## Class 6 Example code: face_detection.py
+## Class 6 Example code: correlation_detection.py
 ## Author: Allen Y. Yang,  Intelligent Racing Inc.
 ##
 ## (c) Copyright 2020. Intelligent Racing Inc. Not permitted for commercial use
@@ -40,34 +40,38 @@ while (grabber.isOpened()):
         faces = face_cascade.detectMultiScale(gray, 1.1, 10)
 
         if len(faces)>0:
-            trackingStatus = UPDATE_TRACK
+
+            # Only process the largest face
             largestArea = 0
             for i in range(len(faces)):
                 if faces[i][2]*faces[i][3] > largestArea:
                     largestArea = faces[i][2]*faces[i][3]
                     largestFace = faces[i]
 
-            x,y,w,h = largestFace 
-            faceSizeThreshold = w * h
-
-    if trackingStatus == UPDATE_TRACK:
-        # Initialize the tracker
-        seed = (x + w//2, y + h//2)
-        mask = np.zeros((height+2, width+2), dtype = np.uint8)
-        fillValue = 255
-        cv2.floodFill(frame, mask, seedPoint = seed, newVal = 255, loDiff=(100,10,5), upDiff = (100,10,5), flags = 8 | cv2.FLOODFILL_MASK_ONLY| (fillValue << 8))
-        _, mask = cv2.threshold(mask, 10, 255, cv2.THRESH_BINARY)
-        cv2.imshow('Mask', mask)
-        x, y, w, h = cv2.boundingRect(mask)
-        x = x - 1
-        y = y - 1
-        if w*h<faceSizeThreshold/2 or w*h>faceSizeThreshold*2:
+            # Initiate a tracker
+            # Possible choices in cv2:
+            # TrackerBoosting, TrackerMIL, TrackerKCF, TrackerTLD, TrackerMOSSE, TrackerCSRT
+            tracker = cv2.TrackerKCF_create()
+            x = max(largestFace[0]-largestFace[2]//2 , 0)
+            y = max(largestFace[1]-largestFace[3]//2, 0)
+            w = (largestFace[0]-x)*2 + largestFace[2]
+            h = (largestFace[1]-y)*2 + largestFace[3]
+            status = tracker.init(frame, (x,y, w, h))
+            if status:
+                trackingStatus = UPDATE_TRACK
+    else:
+        # Update Tracker
+        status, boundingBox = tracker.update(frame)
+        if status:
+            x, y, w, h = boundingBox
+            x = round(x); y = round(y); w = round(w); h = round(h)
+            if x+w>=width: w = width - x - 1
+            if y+h>=height: h = height - y -1
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(255,255,0),2)
+        else:
             # Lost Track
             trackingStatus = LOST_TRACK
-            # continue
-        else:
-            trackingStatus = UPDATE_TRACK
-            cv2.rectangle(frame,(x,y),(x+w,y+h),(255,255,0),2)
+            print('Lost Track!')
 
     cv2.imshow('Video',frame)
 
