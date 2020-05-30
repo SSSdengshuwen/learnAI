@@ -43,6 +43,8 @@ while (grabber.isOpened()):
         x,y,w,h = largestFace 
         # To draw a rectangle in a face  
         cv2.rectangle(frame,(x,y),(x+w,y+h),(255,255,0),2)
+    else:
+        print("Lost Track!")
   
     # Display an image in a window 
     cv2.imshow('Face Video', frame) 

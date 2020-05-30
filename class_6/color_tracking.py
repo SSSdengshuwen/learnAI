@@ -49,13 +49,13 @@ while (grabber.isOpened()):
 
             x,y,w,h = largestFace 
             faceSizeThreshold = w * h
+            seed = (x + w//2, y + h//2)
 
     if trackingStatus == UPDATE_TRACK:
         # Initialize the tracker
-        seed = (x + w//2, y + h//2)
         mask = np.zeros((height+2, width+2), dtype = np.uint8)
         fillValue = 255
-        cv2.floodFill(frame, mask, seedPoint = seed, newVal = 255, loDiff=(100,10,5), upDiff = (100,10,5), flags = 8 | cv2.FLOODFILL_MASK_ONLY| (fillValue << 8))
+        cv2.floodFill(frame, mask, seedPoint = seed, newVal = 255, loDiff=(10,10,5), upDiff = (10,10,5), flags = 8 | cv2.FLOODFILL_MASK_ONLY| (fillValue << 8))
         _, mask = cv2.threshold(mask, 10, 255, cv2.THRESH_BINARY)
         cv2.imshow('Mask', mask)
         x, y, w, h = cv2.boundingRect(mask)
@@ -64,10 +64,18 @@ while (grabber.isOpened()):
         if w*h<faceSizeThreshold/2 or w*h>faceSizeThreshold*2:
             # Lost Track
             trackingStatus = LOST_TRACK
-            # continue
+            print('Lost Track!')
         else:
             trackingStatus = UPDATE_TRACK
             cv2.rectangle(frame,(x,y),(x+w,y+h),(255,255,0),2)
+            # Update Seed
+            middleList = []
+            for i in range(x, x+w):
+                if mask[y+h//2, i]==255:
+                    middleList.append(i)
+            
+            # Next seed choose the middle valid point
+            seed = (middleList[len(middleList)//2], y+h//2)
 
     cv2.imshow('Video',frame)
 
